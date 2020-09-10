@@ -1,0 +1,114 @@
+---
+- name: set ox sessiond.autologin
+  shell:
+    cmd: "ucr set ox/cfg/sessiond.properties/com.openexchange.sessiond.autologin=false"
+  tags:
+    - apps
+    - ox
+
+- name: set dovecot masterpassword
+  replace:
+    path: "/usr/share/univention-ox/listener/ox-user.py"
+    regexp: "imaplogin=%s"
+    replace: "imaplogin=%s*dovecotadmin"
+  notify: restart univention-directory-listener
+  tags:
+    - apps
+    - ox
+
+- name: set ox mail password source
+  replace:
+    path: "/opt/open-xchange/etc/mail.properties"
+    regexp: "com.openexchange.mail.passwordSource=session"
+    replace: "com.openexchange.mail.passwordSource=global"
+  tags:
+    - apps
+    - ox
+
+- name: get dovecot master password
+  shell:
+    cmd: "/bin/grep -i plain /etc/dovecot/master-users | sed -e 's|.*{PLAIN}||;s|:.*||'"
+  register: dovecot_masterpwd
+  tags:
+    - apps
+    - ox
+
+- name: set master password for ox
+  replace:
+    path: "/opt/open-xchange/etc/mail.properties"
+    regexp: "com.openexchange.mail.masterPassword=secret"
+    replace: "com.openexchange.mail.masterPassword={{ dovecot_masterpwd.stdout }}"
+  tags:
+    - apps
+    - ox
+
+- name: add samlLogin to ox
+  replace:
+    path: "/opt/open-xchange/etc/as-config.yml"
+    regexp: "host: all"
+    replace: "host: all\n    samlLogin: true"
+  tags:
+    - apps
+    - ox
+
+- name: create saml serviceprovider
+  shell:
+    cmd: "udm saml/serviceprovider create --position cn=saml-serviceprovider,cn=univention,$ldap_base \
+          --set AssertionConsumerService=https://{{ fqdn }}/appsuite/api/saml/acs --set Identifier=https://{{ fqdn }}/appsuite/ \
+          --set LDAPattributes=mailPrimaryAddress --set LDAPattributes=uid --set NameIDFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" \
+          --set attributesNameFormat='urn:oasis:names:tc:SAML:2.0:nameid-format:transient' --set isActivated=TRUE \
+          --set serviceProviderOrganizationName='Open-Xchange Service Provider' --set simplesamlAttributes=TRUE --set simplesamlNameIDAttribute=uid"
+  tags:
+    - apps
+    - ox
+
+- name: generate pkcs12 file
+  openssl_pkcs12:
+    action: export
+    path: "/tmp/ucs-sso.{{ fqdn }}.p12"
+    friendly_name: "ucs-sso.{{ fqdn }}"
+    privatekey_path: "/etc/simplesamlphp/ucs-sso.{{ fqdn }}-idp-certificate.key"
+    certificate_path: "/etc/simplesamlphp/ucs-sso.{{ fqdn }}-idp-certificate.crt"
+    other_certificates: "/etc/univention/ssl/ucsCA/CAcert.pem"
+    passphrase: "{{ pkcs12_pass }}"
+    state: present
+  tags:
+    - apps
+    - ox
+
+- name: import pkcs12 to java keystore
+  java_cert:
+    pkcs12_path: "/tmp/ucs-sso.{{ fqdn }}.p12"
+    pkcs12_password: "{{ pkcs12_pass }}"
+    keystore_path: "/tmp/my-keystore.jks"
+    keystore_pass: "{{ pkcs12_pass }}"
+    keystore_create: yes
+    state: present
+  tags:
+    - apps
+    - ox
+
+- name: keytool export
+  shell:
+    cmd: "keytool -export -alias ucs-sso.{{ fqdn }} -file /tmp/ucs-sso.{{ fqdn }}.cer -keystore /tmp/my-keystore.jks -deststorepass {{ pkcs12_pass }}"
+  tags:
+    - apps
+    - ox
+
+- name: import keytool
+  java_cert:
+    cert_path: "/tmp/ucs-sso.{{ fqdn }}.cer"
+    cert_alias: "ucs-sso.{{ fqdn }}"
+    keystore_path: "/etc/ssl/certs/java/cacerts"
+    keystore_pass: "{{ pkcs12 }}"
+  tags:
+    - apps
+    - ox
+
+- name: copy acl.conf for dovecot
+  file:
+    src: 90-acl.conf
+    dest: "/etc/dovecot/conf.d/90-acl.conf"
+  tags:
+    - apps
+    - ox 

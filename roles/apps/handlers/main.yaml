@@ -1,0 +1,24 @@
+---
+- name: restart apache2
+  systemd:
+    state: restarted
+    name: apache2
+  tags: apps
+
+- name: restart postfix
+  systemd:
+    state: restarted
+    name: postfix
+  tags: apps
+
+- name: restart dovecot
+  systemd:
+    state: restarted
+    name: dovecot
+  tags: apps
+
+- name: restart univention-directory-listener
+  systemd:
+    state: restarted
+    name: univention-directory-listener
+  tags: apps

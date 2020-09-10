@@ -1,0 +1,15 @@
+---
+hostname: []
+fqdn: []
+domainname: "univention.test"
+basedn: "dc=univention,dc=test"
+rootpassword: [univention]
+ou: "univention"
+serverrole: []
+interfaces: []
+primary_if: []
+primary_netmask: []
+primary_ip: []
+gateway: []
+nameserver1: []
+nameserver2: []

@@ -1,0 +1,4 @@
+---
+server:
+  hosts:
+    master.univention.test:

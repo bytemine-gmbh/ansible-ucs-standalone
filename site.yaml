@@ -1,0 +1,15 @@
+---
+- name: setup system - univention
+  hosts: all
+  gather_facts: yes
+
+  roles:
+    - setup
+
+- name: setup apps - univention
+  hosts: all
+  gather_facts: yes
+
+  roles:
+    - apps
+  

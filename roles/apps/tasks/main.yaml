@@ -1,0 +1,15 @@
+---
+- name: update univention apps
+  shell:
+    cmd: "/usr/bin/univention-app update"
+  tags: apps
+
+- name: install apps from appstore
+  shell:
+    cmd: "/usr/bin/univention-app install {{ item }} --username Administrator --noninteractive --pwdfile /tmp/univention"
+  loop: "{{ apps }}"
+  tags: apps
+
+- include_tasks: apps.yaml
+- include_tasks: openxchnage.yaml
+- include_tasks: appcenter-dev.yaml

@@ -1,0 +1,5 @@
+---
+icon_dir: "/var/www/univention/js/dijit/themes/umc/icons/16x16/"
+apps: []
+apps_dev: []
+pkcs12_pass: "changeit"

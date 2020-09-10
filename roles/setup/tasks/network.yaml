@@ -1,0 +1,25 @@
+---
+- name: set interface to static configuration
+  shell: "/usr/sbin/ucr set interfaces/{{ item }}/type=static"
+  loop: "{{ interfaces }}"
+  tags: network
+
+- name: set netmask on primary interface
+  shell: "/usr/sbin/ucr set interfaces/{{ primary_if }}/netmask={{ primary_netmask }}"
+  tags: network
+
+- name: set ip-address on primary interface
+  shell: "/usr/sbin/ucr set interfaces/{{ primary_if }}/address={{ primary_ip }}"
+  tags: network
+
+- name: set nameserver
+  shell: "/usr/sbin/ucr set nameserver1={{ nameserver1 }}"
+  tags: network
+
+- name: set secondary nameserver
+  shell: "/usr/sbin/ucr set nameserver2={{ nameserver2 }}"
+  tags: network
+
+- name: set gateway for primary interface
+  shell: "/usr/sbin/ucr set gateway={{ gateway }}"
+  tags: network

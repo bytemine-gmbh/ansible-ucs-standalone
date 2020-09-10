@@ -1,0 +1,25 @@
+---
+- name: configure saml single server
+  shell:
+    cmd: /usr/sbin/ucr set ucs/server/sso/autoregistraton=no \
+         saml/idp/entityID="https://"{{ fqdn }}"/simplesamlphp/saml2/idp/metadata.php" \
+         saml/idp/certificate/privatekey="/etc/simplesamlphp/"{{ fqdn }}"-idp-certificate.key" \
+         saml/idp/certificate/certificate="/etc/simplesamlphp/"{{ fqdn }}"-idp-certificate.crt" \
+         ucs/server/sso/fqdn="{{ fqdn }}" 
+         umc/saml/sp-server="{{ fqdn }}" \
+         ucs/server/sso/virtualhost=false \
+         apache2/ssl/certificate=/etc/univention/ssl/"{{ fqdn }}"/cert.pem \
+         apache2/ssl/key=/etc/univention/ssl/"{{ fqdn }}"/private.key
+  tags: saml
+
+- name: run join scripts - univention-saml
+  shell: /usr/sbin/univention-run-join-scripts --force --run-scripts 91univention-saml.inst
+  tags: saml
+
+- name: set idp-server url
+  shell: ucr set umc/saml/idp-server=https://"{{ fqdn }}"/simplesamlphp/saml2/idp/metadata.php
+  tags: saml
+
+- name: run join scripts - univention-management-console-web-server
+  shell: /usr/sbin/univention-run-join-scripts --force --run-scripts 92univention-management-console-web-server.inst
+  tags: saml

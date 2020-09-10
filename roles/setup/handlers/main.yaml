@@ -1,0 +1,10 @@
+---
+- name: restart univention-management-console-server
+  systemd:
+    name: univention-management-console-server
+    state: restarted
+
+- name: restart univention-management-console-web-server
+  systemd:
+    name: univention-management-console-web-server
+    state: restarted

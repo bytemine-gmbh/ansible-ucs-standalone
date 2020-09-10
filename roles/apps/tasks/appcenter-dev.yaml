@@ -1,0 +1,32 @@
+---
+- name: install test appcenter
+  apt:
+    name: univention-appcenter-dev
+  tags: apps
+
+- name: activate test appcenter
+  shell: "/usr/bin/univention-app dev-use-test-appcenter"
+  tags: apps
+
+- name: install apps from test appcenter
+  shell:
+    cmd: "/usr/bin/univention-app install {{ item }} --noninteractive --pwdfile /tmp/univention"
+  loop: "{{ apps_dev }}"
+  tags: apps
+
+- name: deactivate test appcenter part 1
+  shell: "/usr/sbin/ucr set update/secure_apt=yes"
+  tags: apps
+
+- name: deactivate test appcenter part 2
+  shell: "/usr/sbin/ucr set repository/app_center/server=appcenter.software-univention.de"
+  tags: apps
+
+- name: deactivate test appcenter part 3
+  shell: "/usr/sbin/ucr unset appcenter/index/verify"
+  tags: apps
+
+- name: update univention apps
+  shell:
+    cmd: "/usr/bin/univention-app update"
+  tags: apps

@@ -1,0 +1,61 @@
+---
+- name: set domain / enable services - letsencrypt
+  shell: "/usr/sbin/ucr set letsencrypt/domains={{ fqdn }} \
+			letsencrypt/services/apache2=true \
+			letsencrypt/services/postfix=true \
+			letsencrypt/services/dovecot=true"
+  tags:
+    - apps
+    - letsencrypt
+
+- name: setup letsencrypt
+  shell: "/usr/share/univention-letsencrypt/setup-letsencrypt"
+  tags:
+    - apps
+    - letsencrypt
+
+- name: update ca-certificates - letsencrypt
+  shell: "/usr/sbin/update-ca-certificates"
+  notify:
+    - restart apache2
+    - restart postfix
+    - restart dovecot
+  tags:
+    - apps
+    - letsencrypt
+
+- name: configure nextcloud
+  shell: "/usr/bin/univention-app shell nextcloud sudo -u www-data /var/www/html/occ config:app:set user_saml general-allow_multiple_user_back_ends --value=0"
+  tags:
+    - apps
+    - nextcloud
+
+- name: copy icons - portal
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ icon_dir }}"
+  loop:
+    - udm-portals-category.png
+    - udm-portals-entry.png
+    - udm-portals-portal.png
+  tags:
+    - apps
+    - portal
+
+- name: setup self-service
+  shell:
+    cmd: "/usr/sbin/ucr set self-service/udm_attributes=jpegPhoto,e-mail,roomnumber,departmentNumber,country,homeTelephoneNumber,mobileTelephoneNumber,homePostalAddress \
+			    self-service/ldap_attributes=jpegPhoto,mail,roomNumber,departmentNumber,st,homePhone,mobile,homePostalAddress \
+			    umc/self-service/profiledata/enabled=true"
+  tags:
+    - apps
+    - self-service
+
+- name: set content-security-policy - self-service
+  shell:
+    cmd: "ucr set umc/self-service/content-security-policy/frame-ancestors=self"
+  notify: restart apache2
+  tags:
+    - apps
+    - self-service
+

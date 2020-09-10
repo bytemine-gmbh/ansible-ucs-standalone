@@ -1,0 +1,7 @@
+---
+- include_tasks: network.yaml
+- include_tasks: join.yaml
+#- include_tasks: saml.yaml
+- include_tasks: import-license.yaml
+#- include_tasks: appcenter-dev.yaml
+#   when: appcenter_dev is true
