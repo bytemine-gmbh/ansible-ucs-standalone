@@ -10,7 +10,7 @@
 
 - name: install apps from test appcenter
   shell:
-    cmd: "/usr/bin/univention-app install {{ item }} --noninteractive --pwdfile /tmp/univention"
+    cmd: "/usr/bin/univention-app install {{ item }} --noninteractive --pwdfile {{ rootpwfile.path }}"
   loop: "{{ apps_dev }}"
   tags: apps
 

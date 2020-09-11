@@ -5,10 +5,17 @@
      dest: "/var/cache/univention-system-setup/profile"
   tags: join
 
+- name: create temporary root credentials file
+  tempfile:
+    state: file
+    suffix: temp
+  register: rootpwfile
+  tags: join
+
 - name: copy password in file
   copy: 
     content: "{{ rootpassword }}"
-    dest: "/tmp/univention"
+    dest: "{{ rootpwfile.path }}"
   tags: join
 
 - name: run join script on master

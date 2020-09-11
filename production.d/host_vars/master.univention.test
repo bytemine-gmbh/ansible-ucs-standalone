@@ -4,9 +4,9 @@ windows_domain: "univention"
 interfaces:
   - eth0
 primary_if: "eth0"
-primary_ip: "192.168.122.119"
+primary_ip: "192.168.230.1"
 primary_netmask: "255.255.255.0"
-gateway: "192.168.122.1"
+gateway: "192.168.230.254"
 nameserver1: "1.1.1.1"
 nameserver2: "8.8.8.8"
 
@@ -14,10 +14,10 @@ nameserver2: "8.8.8.8"
 apps:
   - letsencrypt
   - nextcloud
-  - oxseforucs=7.10.2-ucs3
-  - open-xchange-saml-ucs
-  - open-xchange-saml
-  - onlyoffice-ds
+#  - oxseforucs=7.10.2-ucs3
+#  - open-xchange-saml-ucs
+#  - open-xchange-saml
+#  - onlyoffice-ds
   - univention-portal
   - self-service-backend
   - self-service

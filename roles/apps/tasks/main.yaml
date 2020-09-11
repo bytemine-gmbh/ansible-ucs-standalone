@@ -6,7 +6,7 @@
 
 - name: install apps from appstore
   shell:
-    cmd: "/usr/bin/univention-app install {{ item }} --username Administrator --noninteractive --pwdfile /tmp/univention"
+    cmd: "/usr/bin/univention-app install {{ item }} --username Administrator --noninteractive --pwdfile {{ rootpwfile.path }}"
   loop: "{{ apps }}"
   tags: apps
 
