@@ -11,5 +11,5 @@
   tags: apps
 
 - include_tasks: apps.yaml
-- include_tasks: openxchnage.yaml
+- include_tasks: openxchange.yaml
 - include_tasks: appcenter-dev.yaml
